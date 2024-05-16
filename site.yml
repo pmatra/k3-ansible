@@ -1,0 +1,23 @@
+---
+
+- hosts: k3s_cluster
+  gather_facts: yes
+  become: yes
+  roles:
+    - role: prereq
+    - role: download
+    - role: raspberrypi
+
+- hosts: master
+  become: yes
+  vars:
+    k3s_no_traefik: true
+    k3s_no_servicelb: true
+    k3s_node_external_address: "{{ vars['ansible_'~iface].ipv4.address }}"
+  roles:
+    - role: k3s/master
+
+- hosts: node
+  become: yes
+  roles:
+    - role: k3s/node
